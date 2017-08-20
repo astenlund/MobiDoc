@@ -1,10 +1,25 @@
 /* jshint esversion: 6 */
 
-const express = require('express');
-const pkg     = require('./package');
-const sprintf = require('sprintf-js').sprintf;
+const express    = require('express');
+const jsonParser = require('body-parser').json();
+const pkg        = require('./package');
+const sprintf    = require('sprintf-js').sprintf;
 
 const app = express();
+
+app.post('/mobidoc/process', jsonParser, (req, res) => {
+    console.log(sprintf('\n%s -> %s', req.hostname, req.url));
+
+    let url = req.body.url;
+
+    if (!url) {
+        console.log('ERROR: Unable to parse URL');
+        console.log(req.body);
+        return res.sendStatus(400);
+    }
+
+    res.send();
+});
 
 app.get('/mobidoc/version', (req, res) => {
     console.log(sprintf('\n%s -> %s', req.hostname, req.url));
