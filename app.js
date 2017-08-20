@@ -1,9 +1,10 @@
 /* jshint esversion: 6 */
 
-const express    = require('express');
-const jsonParser = require('body-parser').json();
-const pkg        = require('./package');
-const sprintf    = require('sprintf-js').sprintf;
+const express     = require('express');
+const jsonParser  = require('body-parser').json();
+const pkg         = require('./package');
+const readability = require('node-readability');
+const sprintf     = require('sprintf-js').sprintf;
 
 const app = express();
 
@@ -17,6 +18,11 @@ app.post('/mobidoc/process', jsonParser, (req, res) => {
         console.log(req.body);
         return res.sendStatus(400);
     }
+
+    readability(url, (err, article, meta) => {
+        console.log('title: ' + article.title);
+        article.close();
+    });
 
     res.send();
 });
