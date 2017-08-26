@@ -9,6 +9,8 @@ const promise     = require('promise');
 const readability = require('node-readability');
 const sprintf     = require('sprintf-js').sprintf;
 const tmp         = require('tmp');
+const wget        = require('wget-improved');
+const { JSDOM }   = require('jsdom');
 
 const exec = bluebird.promisify(require('child_process').exec);
 const fs   = bluebird.promisifyAll(require('fs'));
@@ -20,6 +22,7 @@ app.post('/mobidoc/process', jsonParser, (req, res) => {
     let data = { url: req.body.url };
     parseUrl(data)
         .then(scrapeWebPage)
+        .then(downloadImages)
         .then(writeHtmlToDisk)
         .then(convertToMobi)
         .then(sendToKindle)
@@ -67,6 +70,33 @@ function scrapeWebPage (data) {
     });
 }
 
+function downloadImages (data) {
+    data.imgFiles = [];
+    console.log("Downloading images");
+    let downloads = [];
+    let doc = new JSDOM(data.content).window.document;
+    doc.querySelectorAll('img').forEach(imgLmnt => {
+        let imgSrc = imgLmnt.getAttribute('src');
+        let imgExt = path.extname(imgSrc);
+        let imgName = tmpNameSync(imgExt);
+        let imgFile = path.join(tmp.tmpdir, imgName);
+        imgLmnt.setAttribute('src', imgName);
+        downloads.push(new Promise((resolve, reject) => {
+            let download = wget.download(imgSrc, imgFile);
+            download.on('error', (err) => {
+                reject(err);
+            });
+            download.on('end', (output) => {
+                resolve(output);
+            });
+        }));
+        data.imgFiles.push(imgFile);
+    });
+    data.content = doc.documentElement.outerHTML;
+    return Promise.all(downloads)
+        .then(() => { return data; });
+}
+
 function writeHtmlToDisk (data) {
     data.htmlFile = path.join(tmp.tmpdir, tmpNameSync('.html'));
     console.log('Writing HTML content to disk: ' + data.htmlFile);
@@ -89,7 +119,7 @@ function sendToKindle (data) {
 }
 
 function cleanup (data) {
-    let files = [ data.htmlFile, data.mobiFile ];
+    let files = data.imgFiles.concat(data.htmlFile).concat(data.mobiFile);
     console.log('Cleaning up: ' + files.map(file => { return path.basename(file); }).join(', '));
     return Promise.all(files.map(file => {
         return fs.unlinkAsync(file);
