@@ -22,6 +22,7 @@
     "express": "^4.15.4",
     "jshint": "^2.9.5",
     "node-readability": "^3.0.0",
-    "promise": "^8.0.1"
+    "promise": "^8.0.1",
+    "tmp": "0.0.33"
   }
 }
