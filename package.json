@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/astenlund/MobiDoc/issues"
   },
-  "homepage": "https://github.com/astenlund/MobiDoc#readme"
+  "homepage": "https://github.com/astenlund/MobiDoc#readme",
+  "dependencies": {
+    "express": "^4.15.4"
+  }
 }
