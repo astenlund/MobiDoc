@@ -20,6 +20,7 @@
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "express": "^4.15.4",
+    "jsdom": "^11.2.0",
     "jshint": "^2.9.5",
     "node-readability": "^3.0.0",
     "promise": "^8.0.1",
