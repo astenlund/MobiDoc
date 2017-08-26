@@ -20,6 +20,7 @@
     "body-parser": "^1.17.2",
     "express": "^4.15.4",
     "jshint": "^2.9.5",
-    "node-readability": "^3.0.0"
+    "node-readability": "^3.0.0",
+    "promise": "^8.0.1"
   }
 }
