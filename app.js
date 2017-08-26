@@ -10,7 +10,8 @@ const readability = require('node-readability');
 const sprintf     = require('sprintf-js').sprintf;
 const tmp         = require('tmp');
 
-const fs = bluebird.promisifyAll(require('fs'));
+const exec = bluebird.promisify(require('child_process').exec);
+const fs   = bluebird.promisifyAll(require('fs'));
 
 const app = express();
 
@@ -73,8 +74,12 @@ function writeHtmlToDisk (data) {
 }
 
 function convertToMobi (data) {
-    console.log('Converting EPUB to MOBI');
-    return data;
+    data.mobiFile = data.htmlFile.replace(/\.html$/, '.mobi');
+    console.log('Converting HTML to MOBI: ' + data.mobiFile);
+    let format = 'ebook-convert.exe %s %s --title "%s" --mobi-file-type both --output-profile kindle_voyage --embed-font-family Dotsies';
+    let command = sprintf(format, data.htmlFile, data.mobiFile, data.title);
+    return exec(command)
+        .then(() => { return data; });
 }
 
 function sendToKindle (data) {
