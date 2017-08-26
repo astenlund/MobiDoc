@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/astenlund/MobiDoc#readme",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "express": "^4.15.4",
     "jshint": "^2.9.5"
   }
