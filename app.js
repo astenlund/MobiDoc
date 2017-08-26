@@ -23,6 +23,7 @@ app.post('/mobidoc/process', jsonParser, (req, res) => {
         .then(writeHtmlToDisk)
         .then(convertToMobi)
         .then(sendToKindle)
+        .then(cleanup)
         .then(data => { console.log('Done'); return data; })
         .then(data => { res.send('Article processed: ' + data.title); })
         .catch(err => { console.error(err); res.sendStatus(500); });
@@ -85,6 +86,14 @@ function convertToMobi (data) {
 function sendToKindle (data) {
     console.log('Sending MOBI to Kindle');
     return data;
+}
+
+function cleanup (data) {
+    let files = [ data.htmlFile, data.mobiFile ];
+    console.log('Cleaning up: ' + files.map(file => { return path.basename(file); }).join(', '));
+    return Promise.all(files.map(file => {
+        return fs.unlinkAsync(file);
+    })).then(() => { return data; });
 }
 
 function tmpNameSync (ext) {
