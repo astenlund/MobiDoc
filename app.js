@@ -3,6 +3,7 @@
 const bluebird    = require('bluebird');
 const express     = require('express');
 const jsonParser  = require('body-parser').json();
+const nconf       = require('nconf');
 const path        = require('path');
 const pkg         = require('./package');
 const promise     = require('promise');
@@ -16,6 +17,11 @@ const exec = bluebird.promisify(require('child_process').exec);
 const fs   = bluebird.promisifyAll(require('fs'));
 
 const app = express();
+
+nconf.argv().file('./config.json');
+nconf.defaults({ port: 3000 });
+
+let port = nconf.get('port');
 
 app.post('/mobidoc/process', jsonParser, (req, res) => {
     console.log(sprintf('\n%s -> %s', req.hostname, req.url));
@@ -37,8 +43,8 @@ app.get('/mobidoc/version', (req, res) => {
     res.send(pkg.version);
 });
 
-app.listen(3000, () => {
-    console.log('Listening on port 3000...');
+app.listen(port, () => {
+    console.log(sprintf('Listening on port %u...', port));
 });
 
 function parseUrl (data) {
