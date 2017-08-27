@@ -3,6 +3,7 @@
 const bluebird    = require('bluebird');
 const express     = require('express');
 const jsonParser  = require('body-parser').json();
+const mailer      = require('nodemailer');
 const nconf       = require('nconf');
 const path        = require('path');
 const pkg         = require('./package');
@@ -121,7 +122,31 @@ function convertToMobi (data) {
 
 function sendToKindle (data) {
     console.log('Sending MOBI to Kindle');
-    return data;
+    let filename = path.basename(data.mobiFile);
+    let transporter = mailer.createTransport({
+        host: nconf.get('email:host'),
+        port: nconf.get('email:port'),
+        secure: nconf.get('email:secure'),
+        auth: {
+            user: nconf.get('email:user'),
+            pass: nconf.get('email:pass')
+        }
+    });
+    let message = {
+        from: nconf.get('email:from'),
+        to: nconf.get('email:to'),
+        subject: 'MobiDoc: ' + data.title,
+        text: 'This is an auto-generated e-mail, please do not respond.',
+        attachments: [
+            {
+                filename: filename,
+                path: data.mobiFile
+            }
+        ]
+    };
+    return bluebird.promisifyAll(transporter).sendMailAsync(message)
+        .then(console.log)
+        .then(() => { return data; });
 }
 
 function cleanup (data) {
