@@ -24,6 +24,7 @@
     "jshint": "^2.9.5",
     "nconf": "^0.8.4",
     "node-readability": "^3.0.0",
+    "nodemailer": "^4.0.1",
     "promise": "^8.0.1",
     "sprintf-js": "^1.1.1",
     "tmp": "0.0.33",
